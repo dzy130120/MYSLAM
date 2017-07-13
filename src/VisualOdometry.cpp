@@ -39,8 +39,8 @@ namespace myslam
             imshow("keypoint1",outimg1);
             imshow("keypoint2",outimg2);
             cv::waitKey(20);
-            std::cout<<camera_->rgb_files[i]<<std::endl;
-            std::cout<<camera_->depth_files[i]<<std::endl;
+//            std::cout<<camera_->rgb_files[i]<<std::endl;
+//            std::cout<<camera_->depth_files[i]<<std::endl;
         }
     }
 }
