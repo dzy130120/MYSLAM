@@ -26,19 +26,19 @@ namespace myslam
 
     void VISUALODOMETRY::run()
     {
-        Mat outimg1, outimg2;
+//        Mat outimg1, outimg2;
         for(int i=0; i<camera_->rgb_files.size(); i++)
         {
             FRAME::Ptr frame_(new myslam::FRAME(i, cv::imread(camera_->rgb_files[i],-1), cv::imread(camera_->depth_files[i])));
-            //myslam::FRAME frame(i, cv::imread(camera.rgb_files[i],-1), cv::imread(camera.depth_files[i]));
             FeatureOperater_->extractKeyPoints(frame_->ImgRgb, frame_->KeypointsCurr);
             FeatureOperater_->computeDescriptors(frame_->ImgRgb, frame_->KeypointsCurr, frame_->DescriptorsCurr);
             addframe(frame_);
-            drawKeypoints( curr_->ImgRgb, curr_->KeypointsCurr, outimg1, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
-            drawKeypoints( ref_->ImgRgb, ref_->KeypointsCurr, outimg2, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
-            imshow("keypoint1",outimg1);
-            imshow("keypoint2",outimg2);
-            cv::waitKey(20);
+
+//            drawKeypoints( curr_->ImgRgb, curr_->KeypointsCurr, outimg1, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
+//            drawKeypoints( ref_->ImgRgb, ref_->KeypointsCurr, outimg2, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
+//            imshow("keypoint1",outimg1);
+//            imshow("keypoint2",outimg2);
+//            cv::waitKey(20);
 //            std::cout<<camera_->rgb_files[i]<<std::endl;
 //            std::cout<<camera_->depth_files[i]<<std::endl;
         }
