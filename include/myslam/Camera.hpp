@@ -12,7 +12,7 @@ public:
     CAMERA(double c_x, double c_y, double f_x, double f_y, double depth_Scale);
     CAMERA(string data_path, double c_x, double c_y, double f_x, double f_y, double depth_Scale);
 
-	double cx;
+    double cx;
     double cy;
     double fx;
     double fy;

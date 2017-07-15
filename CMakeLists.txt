@@ -11,7 +11,7 @@ list( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules )
 ############### dependencies ######################
 # Eigen
 FIND_PACKAGE(Eigen3 REQUIRED )
-INCLUDE_DIRECTORIES( ${Eigen3_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( ${EIGEN3_INCLUDE_DIRS} )
 #INCLUDE_DIRECTORIES( "/usr/include/eigen3" )
 # OpenCV 3.1
 FIND_PACKAGE(OpenCV 3.0 REQUIRED)
@@ -21,24 +21,23 @@ FIND_PACKAGE( Sophus REQUIRED )
 INCLUDE_DIRECTORIES( ${Sophus_INCLUDE_DIRS} )
 # G2O
 FIND_PACKAGE(G2O REQUIRED)
-INCLUDE_DIRECTORIES( ${G2O_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( ${G2O_INCLUDE_DIR} )
 # Ceres
 FIND_PACKAGE(Ceres REQUIRED )
-INCLUDE_DIRECTORIES( ${Ceres_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( ${CERES_INCLUDE_DIR} )
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include)
 
 LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/lib)
 SET( THIRD_PARTY_LIBS 
-    ${OpenCV_LIBRARIES}
     ${Sophus_LIBRARIES}
-	${G2O_LIBRARIES}
-	${Eigen3_LIBRARIES}
-	${Ceres_LIBRARIES}
+    ${OpenCV_LIBRARIES}
+    g2o_core g2o_stuff g2o_types_sba
+    ${CERES_LIBRARIES}
 )
-#MESSAGE("******************************************")
-#message(${CMAKE_CXX_FLAGS})
-#MESSAGE("******************************************")
+MESSAGE("******************************************")
+message(${Sophus_LIBRARIES})
+MESSAGE("******************************************")
 #message(${OpenCV_LIBRARIES})
 #MESSAGE("******************************************")
 

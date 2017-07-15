@@ -7,9 +7,9 @@ namespace myslam
         FrameID = Frame_ID++;
     }
 
-    void FRAME::setPose( const SE3& T_c_w_ )
+    void FRAME::setPose(const SE3& T_c_w_ )
     {
-        T_c_w = new SE3(T_c_w_);
+         T_c_w = new SE3(T_c_w_);
     }
 
 

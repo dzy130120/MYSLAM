@@ -26,7 +26,7 @@ public:
 //    // Get Camera Center
 //    Vector3d getCamCenter() const;
 
-    void setPose( const SE3& T_c_w );
+    void setPose(const SE3 &T_c_w_ );
 
 //    // check if a point is in this frame
 //    bool isInFrame( const Vector3d& pt_world );

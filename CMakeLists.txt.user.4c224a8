@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 3.5.1, 2017-07-15T13:43:57. -->
+<!-- Written by QtCreator 3.5.1, 2017-07-12T22:58:58. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
-  <value type="QByteArray">{8bb30d19-ed4c-4ff8-bee4-7be5af764300}</value>
+  <value type="QByteArray">{4c224a80-9351-4ebd-b861-c4e3bf0ebc53}</value>
  </data>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -60,13 +60,13 @@
   <valuemap type="QVariantMap">
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">桌面</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">桌面</value>
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{459e1b70-86e1-41ef-984e-14b740957a9a}</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{e37e4e92-aa28-4c59-a740-819ce745d977}</value>
    <value type="int" key="ProjectExplorer.Target.ActiveBuildConfiguration">0</value>
    <value type="int" key="ProjectExplorer.Target.ActiveDeployConfiguration">0</value>
    <value type="int" key="ProjectExplorer.Target.ActiveRunConfiguration">0</value>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.BuildConfiguration.0">
     <value type="bool" key="CMakeProjectManager.CMakeBuildConfiguration.UseNinja">false</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/dzy/program/MYSLAM/build</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/dzy/program/mutiply_threads/myslam/build</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="QString" key="CMakeProjectManager.MakeStep.AdditionalArguments"></value>
