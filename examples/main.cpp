@@ -2,7 +2,6 @@
 unsigned long myslam::FRAME::Frame_ID = 0;
 int main()
 {
-
     myslam::Config::setParameterFile ( "../para.yaml" );
     string datedir = myslam::Config::get<string> ( "dataset_dir" );
     double f_x = myslam::Config::get<double> ( "camera.fx" );
@@ -17,7 +16,6 @@ int main()
     camera_->rgb_files.pop_back();
     camera_->depth_files.pop_back();
     myslam::FEATUREOPERATER::Ptr FeatureOperater(new myslam::FEATUREOPERATER(Num_Of_Features, Scale_Factor, Level_Pyramid));
-
     myslam::VISUALODOMETRY::Ptr vo(new myslam::VISUALODOMETRY(camera_, FeatureOperater));
     vo->run();
 

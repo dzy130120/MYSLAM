@@ -12,6 +12,7 @@ namespace myslam
         if(0 == state)
         {
             curr_ = curr_temp;
+            curr_->setPose(Isometry3d::Identity());
             ref_ = curr_;
             state = 1;
         }
@@ -19,8 +20,6 @@ namespace myslam
         {
             ref_ = curr_;
             curr_ = curr_temp;
-
-
         }
     }
 
@@ -29,11 +28,11 @@ namespace myslam
         Mat outimg1, outimg2;
         for(int i=0; i<camera_->rgb_files.size(); i++)
         {
-            FRAME::Ptr frame_(new myslam::FRAME(i, cv::imread(camera_->rgb_files[i],-1), cv::imread(camera_->depth_files[i])));
+            FRAME::Ptr frame_(new myslam::FRAME(camera_, i, cv::imread(camera_->rgb_files[i],-1), cv::imread(camera_->depth_files[i])));
             FeatureOperater_->extractKeyPoints(frame_->ImgRgb, frame_->KeypointsCurr);
+            frame_->keypointfilterwithdepth();
             FeatureOperater_->computeDescriptors(frame_->ImgRgb, frame_->KeypointsCurr, frame_->DescriptorsCurr);
             addframe(frame_);
-
             drawKeypoints( curr_->ImgRgb, curr_->KeypointsCurr, outimg1, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
             drawKeypoints( ref_->ImgRgb, ref_->KeypointsCurr, outimg2, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
             imshow("keypoint1",outimg1);
