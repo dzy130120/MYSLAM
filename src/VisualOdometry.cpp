@@ -55,32 +55,24 @@ namespace myslam
 
     void VISUALODOMETRY::Matcher()
     {
-        if(KeyFrame_->DescriptorsCurr.type()!=CV_32F)
-        {
-            KeyFrame_->DescriptorsCurr.convertTo(KeyFrame_->DescriptorsCurr, CV_32F);
-        }
-
-        if(curr_->DescriptorsCurr.type()!=CV_32F)
-        {
-            curr_->DescriptorsCurr.convertTo(curr_->DescriptorsCurr, CV_32F);
-        }
-        MatcherFlann_.match(KeyFrame_->DescriptorsCurr, curr_->DescriptorsCurr, matches);
+        MatcherFlann_ = (new BFMatcher(NORM_HAMMING));
+        MatcherFlann_->match(KeyFrame_->DescriptorsCurr, curr_->DescriptorsCurr, matches);
 
         // select the best matches
         float min_dis = std::min_element ( matches.begin(), matches.end(), [] ( const cv::DMatch& m1, const cv::DMatch& m2 )
             {
                 return m1.distance < m2.distance;
             } )->distance;
-        Mat OutImage1, OutImage2;
-        drawMatches(KeyFrame_->ImgRgb, KeyFrame_->KeypointsCurr, curr_->ImgRgb, curr_->KeypointsCurr, matches, OutImage1);
-        imshow("before filer", OutImage1);
-
+//        Mat OutImage1, OutImage2;
+//        drawMatches(KeyFrame_->ImgRgb, KeyFrame_->KeypointsCurr, curr_->ImgRgb, curr_->KeypointsCurr, matches, OutImage1);
+//        imshow("before filer", OutImage1);
+        cout<<matches.size()<<"  ";
         for ( vector<cv::DMatch>::iterator m=matches.begin();m!=matches.end();)
         {
-            if ( m->distance < max<float> ( min_dis*2.0 , 70.0 ) )
+            //cout<<m->distance<<" ";
+            if ( m->distance < max<float> ( min_dis*2.0 , 30 ) )
             {
                 m++;
-
             }
             else
             {
@@ -88,8 +80,10 @@ namespace myslam
 
             }
         }
-        drawMatches(KeyFrame_->ImgRgb, KeyFrame_->KeypointsCurr, curr_->ImgRgb, curr_->KeypointsCurr, matches, OutImage2);
-        imshow("after filer", OutImage2);
-        cvWaitKey( 0 );
+
+        cout<<matches.size()<<endl;
+//        drawMatches(KeyFrame_->ImgRgb, KeyFrame_->KeypointsCurr, curr_->ImgRgb, curr_->KeypointsCurr, matches, OutImage2);
+//        imshow("after filer", OutImage2);
+//        cvWaitKey( 30 );
     }
 }

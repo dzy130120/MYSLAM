@@ -25,7 +25,7 @@ public:
     MAP::Ptr GlobalMap_;
     MAP::Ptr LocalMap_;
 
-    FlannBasedMatcher   MatcherFlann_;     // flann matcher
+    cv::Ptr<BFMatcher>   MatcherFlann_;     // flann matcher
     vector<cv::DMatch> matches;
 };
 
