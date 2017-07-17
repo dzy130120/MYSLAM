@@ -16,8 +16,7 @@ public:
     double cy;
     double fx;
     double fy;
-    Eigen::Matrix3d K;
-    Eigen::Isometry3d T_c_w;
+    SO3 K;
     double depthScale;
     vector<string> rgb_files, depth_files;
     vector<double> rgb_times, depth_times;

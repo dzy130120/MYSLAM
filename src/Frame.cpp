@@ -7,7 +7,7 @@ namespace myslam
         FrameID = Frame_ID++;
     }
 
-    void FRAME::setPose(const Eigen::Isometry3d T_c_w_ )
+    void FRAME::setPose(const Sophus::SE3 T_c_w_ )
     {
         T_c_w = T_c_w_;
     }
@@ -63,12 +63,35 @@ namespace myslam
         return Vector3d ( ( p_p ( 0,0 )-camera_->cx ) *depth/camera_->fx,  ( p_p ( 1,0 )-camera_->cy ) *depth/camera_->fy, depth );
     }
 
+    Vector3d FRAME::world2camera ( const Vector3d& p_w, const SE3& T_c_w )
+    {
+        return T_c_w*p_w;
+    }
+
+    Vector2d FRAME::camera2pixel ( const Vector3d& p_c )
+    {
+        return Vector2d ( camera_->fx * p_c ( 0,0 ) / p_c ( 2,0 ) + camera_->cx, camera_->fy * p_c ( 1,0 ) / p_c ( 2,0 ) + camera_->cy );
+    }
+
     void FRAME::dispatch()
     {
         for(int i = 0; i<MapPoints.size(); i++)
         {
             MapPoints[i]->Descriptor = DescriptorsCurr.rowRange(i,i+1).clone();
         }
+    }
+
+    bool FRAME::isInFrame( const Vector3d& pt_world )
+    {
+        Vector3d p_cam = world2camera( pt_world, T_c_w );
+        // cout<<"P_cam = "<<p_cam.transpose()<<endl;
+        if ( p_cam(2,0)<0 )
+        {
+            return false;
+        }
+        Vector2d pixel = camera2pixel( p_cam );
+        // cout<<"P_pixel = "<<pixel.transpose()<<endl<<endl;
+        return (pixel(0,0)>0) && (pixel(1,0)>0) && (pixel(0,0)<ImgRgb.cols) && (pixel(1,0)<ImgRgb.rows);
     }
 
 }

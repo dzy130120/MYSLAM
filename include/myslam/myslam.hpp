@@ -3,8 +3,9 @@
 #include<myslam/Config.hpp>
 #include<myslam/Frame.hpp>
 #include<myslam/FeatureOperater.hpp>
-#include<myslam/VisualOdometry.hpp>
 #include<myslam/MapPoint.hpp>
+#include<myslam/VisualOdometry.hpp>
+#include<myslam/Map.hpp>
 
 
 

@@ -27,10 +27,12 @@ CAMERA::CAMERA(string data_path, double c_x, double c_y, double f_x, double f_y,
         if ( fin.good() == false )
             break;
     }
-    T_c_w = Eigen::Matrix4d::Identity(4,4);
-    K <<fx, 0 , cx,
-        0 , fy, cy,
-        0 , 0 , 1 ;
+    Matrix3d tmp_K;
+    tmp_K << fx, 0 , cx,
+            0 , fy, cy,
+            0 , 0 , 1 ;
+    SO3 tmp_SO3_K(tmp_K);
+    K = tmp_SO3_K;
 
 
 
