@@ -20,4 +20,8 @@ namespace myslam
         Pos << x, y, z;
     }
 
+    void MAPPOINT::setDescriptor(Mat descriptor)
+    {
+        Descriptor = (descriptor);
+    }
 }

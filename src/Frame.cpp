@@ -63,4 +63,12 @@ namespace myslam
         return Vector3d ( ( p_p ( 0,0 )-camera_->cx ) *depth/camera_->fx,  ( p_p ( 1,0 )-camera_->cy ) *depth/camera_->fy, depth );
     }
 
+    void FRAME::dispatch()
+    {
+        for(int i = 0; i<MapPoints.size(); i++)
+        {
+            MapPoints[i]->Descriptor = DescriptorsCurr.rowRange(i,i+1).clone();
+        }
+    }
+
 }

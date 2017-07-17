@@ -30,7 +30,7 @@ public:
 //    Vector3d getCamCenter() const;
     Vector3d pixel2camera ( const Vector2d& p_p, double depth );
     void setPose(const Isometry3d T_c_w_ );
-
+    void dispatch();
 //    // check if a point is in this frame
 //    bool isInFrame( const Vector3d& pt_world );
 

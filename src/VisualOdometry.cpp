@@ -32,6 +32,7 @@ namespace myslam
             FeatureOperater_->extractKeyPoints(frame_->ImgRgb, frame_->KeypointsCurr);
             frame_->keypointfilterwithdepth();
             FeatureOperater_->computeDescriptors(frame_->ImgRgb, frame_->KeypointsCurr, frame_->DescriptorsCurr);
+            frame_->dispatch();
             addframe(frame_);
             drawKeypoints( curr_->ImgRgb, curr_->KeypointsCurr, outimg1, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
             drawKeypoints( ref_->ImgRgb, ref_->KeypointsCurr, outimg2, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
