@@ -5,6 +5,8 @@ namespace myslam
     VISUALODOMETRY::VISUALODOMETRY(CAMERA::Ptr camera_temp, FEATUREOPERATER::Ptr FeatureOperater_temp):camera_(camera_temp), FeatureOperater_(FeatureOperater_temp), ref_(nullptr), KeyFrame_(nullptr), curr_(nullptr)
     {
         state = 0;
+        MAP::Ptr tmp(new MAP());
+        LocalMap_ = tmp;
     }
 
     void VISUALODOMETRY::addframe(FRAME::Ptr curr_temp)
@@ -16,12 +18,39 @@ namespace myslam
             KeyFrame_ = curr_;
             ref_ = curr_;
             state = 1;
+            for(int i=0 ;i<KeyFrame_->MapPoints.size(); i++)
+            {
+                LocalMap_->insertMapPoint(KeyFrame_->MapPoints[i]);
+            }
         }
         else if(1 == state)
         {
             curr_ = curr_temp;
+            predicmodel();
             Matcher();
-            KeyFrame_ = curr_;
+            poseEstimation();
+//            cout<<curr_->T_c_w.matrix()<<endl;
+            if(curr_->T_c_w.matrix().norm()>2)
+            {
+                curr_->KeyFrame = true;
+                for(int i=0; i<curr_->MapPoints.size();i++)
+                {
+                    curr_->MapPoints[i]->Pos = curr_->T_c_w.inverse() * curr_->MapPoints[i]->Pos;
+                    if(LocalMap_->isinMap(curr_->MapPoints[i]))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        LocalMap_->insertMapPoint(curr_->MapPoints[i]);
+                    }
+
+                }
+                //cout<<LocalMap_->PointCloud.size()<<endl;
+                KeyFrame_ = curr_;
+
+            }
+
         }
     }
 
@@ -35,28 +64,40 @@ namespace myslam
             frame_->keypointfilterwithdepth();
             FeatureOperater_->computeDescriptors(frame_->ImgRgb, frame_->KeypointsCurr, frame_->DescriptorsCurr);
             frame_->dispatch();
-
+            std::cout<<camera_->rgb_files[i]<<std::endl;
+            std::cout<<camera_->depth_files[i]<<std::endl;
             addframe(frame_);
-            predicmodel();
+
 //            drawKeypoints( curr_->ImgRgb, curr_->KeypointsCurr, outimg1, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
 //            drawKeypoints( ref_->ImgRgb, ref_->KeypointsCurr, outimg2, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
 //            imshow("keypoint1",outimg1);
 //            imshow("keypoint2",outimg2);
 //            cv::waitKey(20);
-//            std::cout<<camera_->rgb_files[i]<<std::endl;
-//            std::cout<<camera_->depth_files[i]<<std::endl;
+
         }
     }
 
     void VISUALODOMETRY::predicmodel()
     {
-        curr_->T_c_w = ref_->T_c_w;
+        curr_->T_c_w = KeyFrame_->T_c_w;
     }
 
     void VISUALODOMETRY::Matcher()
     {
+        vector<MAPPOINT::Ptr>  candidate_pt;
+        Mat  candidate_des;
+        for(int n=0;n<LocalMap_->PointCloud.size();n++)
+        {
+
+            if(curr_->isInFrame(LocalMap_->PointCloud[n]->Pos))
+            {
+                candidate_pt.push_back(LocalMap_->PointCloud[n]);
+                candidate_des.push_back(LocalMap_->PointCloud[n]->Descriptor);
+            }
+        }
+
         MatcherFlann_ = (new BFMatcher(NORM_HAMMING));
-        MatcherFlann_->match(KeyFrame_->DescriptorsCurr, curr_->DescriptorsCurr, matches);
+        MatcherFlann_->match(candidate_des, curr_->DescriptorsCurr, matches);
 
         // select the best matches
         float min_dis = std::min_element ( matches.begin(), matches.end(), [] ( const cv::DMatch& m1, const cv::DMatch& m2 )
@@ -66,24 +107,45 @@ namespace myslam
 //        Mat OutImage1, OutImage2;
 //        drawMatches(KeyFrame_->ImgRgb, KeyFrame_->KeypointsCurr, curr_->ImgRgb, curr_->KeypointsCurr, matches, OutImage1);
 //        imshow("before filer", OutImage1);
-        cout<<matches.size()<<"  ";
+//        cout<<matches.size()<<"  ";
         for ( vector<cv::DMatch>::iterator m=matches.begin();m!=matches.end();)
         {
-            //cout<<m->distance<<" ";
+//            cout<<m->distance<<" ";
             if ( m->distance < max<float> ( min_dis*2.0 , 30 ) )
             {
+                MatchMapPoint.push_back(candidate_pt[m->queryIdx]->getPositionCV());
+                MatchKeyPoint.push_back(curr_->KeypointsCurr[m->trainIdx].pt);
                 m++;
             }
             else
             {
+
                 matches.erase(m);
 
             }
         }
 
-        cout<<matches.size()<<endl;
+//        cout<<matches.size()<<endl;
 //        drawMatches(KeyFrame_->ImgRgb, KeyFrame_->KeypointsCurr, curr_->ImgRgb, curr_->KeypointsCurr, matches, OutImage2);
 //        imshow("after filer", OutImage2);
-//        cvWaitKey( 30 );
+//        cvWaitKey( 0 );
+    }
+
+    void VISUALODOMETRY::poseEstimation()
+    {
+        Mat rvec, tvec, inliers;
+        Mat K = ( cv::Mat_<double> ( 3,3 ) <<
+                      camera_->fx, 0, camera_->cx,
+                      0, camera_->fy, camera_->cy,
+                      0,0,1
+                    );
+        cv::solvePnPRansac ( MatchMapPoint, MatchKeyPoint, K, Mat(), rvec, tvec, false, 100, 4.0, 0.99, inliers );
+       // num_inliers_ = inliers.rows;
+        //cout<<"pnp inliers: "<<num_inliers_<<endl;
+        curr_->T_c_w = SE3 (
+                                   SO3 ( rvec.at<double> ( 0,0 ), rvec.at<double> ( 1,0 ), rvec.at<double> ( 2,0 ) ),
+                                   Vector3d ( tvec.at<double> ( 0,0 ), tvec.at<double> ( 1,0 ), tvec.at<double> ( 2,0 ) )
+                               );
+
     }
 }

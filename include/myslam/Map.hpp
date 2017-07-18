@@ -10,8 +10,9 @@ public:
     typedef std::shared_ptr<MAP> Ptr;
     MAP(){};
 	~MAP(){};
-    unordered_map<unsigned long, MAPPOINT::Ptr >  PointCloud;
-
+    vector<MAPPOINT::Ptr >  PointCloud;
+    void insertMapPoint ( MAPPOINT::Ptr map_point );
+    bool isinMap(MAPPOINT::Ptr);
 };
 
 }

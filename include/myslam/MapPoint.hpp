@@ -20,7 +20,10 @@ public:
     MAPPOINT(){};
     ~MAPPOINT(){};
     void setDescriptor(Mat descriptor);
-
+    inline cv::Point3f getPositionCV() const
+    {
+         return cv::Point3f( Pos(0,0), Pos(1,0), Pos(2,0) );
+    }
 };
 
 }

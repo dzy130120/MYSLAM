@@ -14,7 +14,7 @@ public:
     void addframe(FRAME::Ptr curr_temp);
     void predicmodel();
     void Matcher();
-    //void FindMatchs(FRAME::Ptr  Ref_, FRAME::Ptr  Curr_, );
+    void poseEstimation();
     void run();
     int state;
     FEATUREOPERATER::Ptr FeatureOperater_;
@@ -24,7 +24,8 @@ public:
     FRAME::Ptr  curr_;      // current frame
     MAP::Ptr GlobalMap_;
     MAP::Ptr LocalMap_;
-
+    vector<cv::Point3f>   MatchMapPoint;       // matched 3d points
+    vector<cv::Point2f>   MatchKeyPoint;  // matched 2d pixels (index of kp_curr)
     cv::Ptr<BFMatcher>   MatcherFlann_;     // flann matcher
     vector<cv::DMatch> matches;
 };
