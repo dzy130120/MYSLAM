@@ -6,6 +6,7 @@
 #include<myslam/MapPoint.hpp>
 #include<myslam/VisualOdometry.hpp>
 #include<myslam/Map.hpp>
+#include<myslam/Optimization.hpp>
 
 
 

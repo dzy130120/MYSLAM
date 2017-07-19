@@ -13,7 +13,7 @@ bool MAP::isinMap(MAPPOINT::Ptr map_point)
     {
         Matrix<double,3, 1> tmp_dis(PointCloud[i]->Pos-map_point->Pos);
 
-        cout<<tmp_dis.norm()<<endl;
+        //cout<<tmp_dis.norm()<<endl;
 
         if(tmp_dis.norm()<1)
         {
