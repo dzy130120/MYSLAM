@@ -15,6 +15,7 @@ public:
     void predicmodel();
     void Matcher();
     void poseEstimation();
+    bool isKeyFrame(FRAME::Ptr fm);
     void run();
     int state;
     FEATUREOPERATER::Ptr FeatureOperater_;
@@ -28,6 +29,7 @@ public:
     vector<cv::Point2f>   MatchKeyPoint;  // matched 2d pixels (index of kp_curr)
     cv::Ptr<BFMatcher>   MatcherFlann_;     // flann matcher
     vector<cv::DMatch> matches;
+    Mat rvec, tvec, inliers;
 };
 
 }

@@ -29,10 +29,10 @@ namespace myslam
             predicmodel();
             Matcher();
             poseEstimation();
-            cout<<curr_->T_c_w.matrix()<<endl;
-            if(curr_->T_c_w.matrix().norm()>2)
+            if(isKeyFrame(curr_))
             {
-                curr_->KeyFrame = true;
+                OPTIMIZATION::Ptr Optimization(new OPTIMIZATION(curr_->T_c_w, curr_, curr_->camera_, inliers, MatchMapPoint, MatchKeyPoint));
+                curr_->T_c_w = Optimization->Optimization_run(10);
                 for(int i=0; i<curr_->MapPoints.size();i++)
                 {
                     curr_->MapPoints[i]->Pos = curr_->T_c_w.inverse() * curr_->MapPoints[i]->Pos;
@@ -133,53 +133,61 @@ namespace myslam
 
     void VISUALODOMETRY::poseEstimation()
     {
-        Mat rvec, tvec, inliers;
         Mat K = ( cv::Mat_<double> ( 3,3 ) <<
                       camera_->fx, 0, camera_->cx,
                       0, camera_->fy, camera_->cy,
                       0,0,1
                     );
         cv::solvePnPRansac ( MatchMapPoint, MatchKeyPoint, K, Mat(), rvec, tvec, false, 100, 4.0, 0.99, inliers );
-       // num_inliers_ = inliers.rows;
-        //cout<<"pnp inliers: "<<num_inliers_<<endl;
-//        curr_->T_c_w = SE3 (
-//                                   SO3 ( rvec.at<double> ( 0,0 ), rvec.at<double> ( 1,0 ), rvec.at<double> ( 2,0 ) ),
-//                                   Vector3d ( tvec.at<double> ( 0,0 ), tvec.at<double> ( 1,0 ), tvec.at<double> ( 2,0 ) )
-//                               );
-        typedef g2o::BlockSolver<g2o::BlockSolverTraits<-1,-1>> Block;
-        Block::LinearSolverType* linearSolver = new g2o::LinearSolverDense<Block::PoseMatrixType>();
-        Block* solver_ptr = new Block ( linearSolver );
-        g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg ( solver_ptr );
-        g2o::SparseOptimizer optimizer;
-        optimizer.setAlgorithm ( solver );
-
-        g2o::VertexSE3Expmap* pose = new g2o::VertexSE3Expmap();
-        pose->setId ( 0 );
-        pose->setEstimate ( g2o::SE3Quat (
-                SO3 ( rvec.at<double> ( 0,0 ), rvec.at<double> ( 1,0 ), rvec.at<double> ( 2,0 ) ).matrix(), Vector3d ( tvec.at<double> ( 0,0 ), tvec.at<double> ( 1,0 ), tvec.at<double> ( 2,0 ) )
-            ));
-        optimizer.addVertex ( pose );
-
-        for ( int i=0; i<inliers.rows; i++ )
-        {
-            int index = inliers.at<int> ( i,0 );
-            // 3D -> 2D projection
-            EdgeProjectXYZ2UVPoseOnly* edge = new EdgeProjectXYZ2UVPoseOnly();
-            edge->setId ( i );
-            edge->setVertex ( 0, pose );
-            edge->frame_ = curr_.get();
-            edge->camera_ = curr_->camera_.get();
-            edge->point_ = Vector3d ( MatchMapPoint[index].x, MatchMapPoint[index].y, MatchMapPoint[index].z );
-            edge->setMeasurement ( Vector2d ( MatchKeyPoint[index].x, MatchKeyPoint[index].y ) );
-            edge->setInformation ( Eigen::Matrix2d::Identity() );
-            optimizer.addEdge ( edge );
-
-        }
-        optimizer.initializeOptimization();
-        optimizer.optimize ( 10 );
         curr_->T_c_w = SE3 (
-                pose->estimate().rotation(),
-                pose->estimate().translation()
-            );
+                                   SO3 ( rvec.at<double> ( 0,0 ), rvec.at<double> ( 1,0 ), rvec.at<double> ( 2,0 ) ),
+                                   Vector3d ( tvec.at<double> ( 0,0 ), tvec.at<double> ( 1,0 ), tvec.at<double> ( 2,0 ) )
+                               );
+
+//        typedef g2o::BlockSolver<g2o::BlockSolverTraits<-1,-1>> Block;
+//        Block::LinearSolverType* linearSolver = new g2o::LinearSolverDense<Block::PoseMatrixType>();
+//        Block* solver_ptr = new Block ( linearSolver );
+//        g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg ( solver_ptr );
+//        g2o::SparseOptimizer optimizer;
+//        optimizer.setAlgorithm ( solver );
+
+//        g2o::VertexSE3Expmap* pose = new g2o::VertexSE3Expmap();
+//        pose->setId ( 0 );
+//        pose->setEstimate ( g2o::SE3Quat (
+//                SO3 ( rvec.at<double> ( 0,0 ), rvec.at<double> ( 1,0 ), rvec.at<double> ( 2,0 ) ).matrix(), Vector3d ( tvec.at<double> ( 0,0 ), tvec.at<double> ( 1,0 ), tvec.at<double> ( 2,0 ) )
+//            ));
+//        optimizer.addVertex ( pose );
+
+//        for ( int i=0; i<inliers.rows; i++ )
+//        {
+//            int index = inliers.at<int> ( i,0 );
+//            // 3D -> 2D projection
+//            EdgeProjectXYZ2UVPoseOnly* edge = new EdgeProjectXYZ2UVPoseOnly();
+//            edge->setId ( i );
+//            edge->setVertex ( 0, pose );
+//            edge->frame_ = curr_;
+//            edge->camera_ = curr_->camera_;
+//            edge->point_ = Vector3d ( MatchMapPoint[index].x, MatchMapPoint[index].y, MatchMapPoint[index].z );
+//            edge->setMeasurement ( Vector2d ( MatchKeyPoint[index].x, MatchKeyPoint[index].y ) );
+//            edge->setInformation ( Eigen::Matrix2d::Identity() );
+//            optimizer.addEdge ( edge );
+
+//        }
+//        optimizer.initializeOptimization();
+//        optimizer.optimize ( 10 );
+//        curr_->T_c_w = SE3 ( pose->estimate().rotation(), pose->estimate().translation() );
+    }
+
+    bool VISUALODOMETRY::isKeyFrame(FRAME::Ptr fm)
+    {
+        if(fm->T_c_w.matrix().norm()>2)
+        {
+            fm->KeyFrame = true;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }
