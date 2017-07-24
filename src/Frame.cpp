@@ -2,7 +2,7 @@
 
 namespace myslam
 {
-    FRAME::FRAME(CAMERA::Ptr camera_temp, double Time_Stamp, Mat Img_Rgb, Mat Img_Depth):camera_(camera_temp), TimeStamp(Time_Stamp),ImgRgb(Img_Rgb),ImgDepth(Img_Depth)
+    FRAME::FRAME(myslam::CAMERA::Ptr camera_temp, double RGBTimeStamp_, double DepthTimeStamp_, Mat Img_Rgb, Mat Img_Depth):camera_(camera_temp), RGBTimeStamp(RGBTimeStamp_), DepthTimeStamp(DepthTimeStamp_),ImgRgb(Img_Rgb),ImgDepth(Img_Depth)
     {
         FrameID = Frame_ID++;
     }

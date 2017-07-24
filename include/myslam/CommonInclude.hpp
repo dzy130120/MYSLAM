@@ -4,6 +4,12 @@
 #include<string>
 #include<memory>
 #include<vector>
+#include<unistd.h>
+#include <thread>
+#include <chrono>
+#include <functional>
+#include <atomic>
+#include<mutex>
 
 #include<opencv2/opencv.hpp>
 #include<opencv2/core/core.hpp>
@@ -25,6 +31,8 @@
 #include<g2o/solvers/dense/linear_solver_dense.h>
 #include<g2o/core/robust_kernel.h>
 #include<g2o/core/robust_kernel_impl.h>
+
+//#include <pcl/visualization/cloud_viewer.h>
 
 using namespace cv;
 using namespace std;

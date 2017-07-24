@@ -2,6 +2,21 @@
 
 namespace myslam
 {
+
+MAP::MAP(const MAP::Ptr C)
+{
+    PointCloud.swap(C->PointCloud);
+}
+
+void MAP::opD()
+{
+    while(1)
+    {
+        cout<<"str1111111111"<<endl;
+        cvWaitKey(100);
+    }
+}
+
 void MAP::insertMapPoint ( MAPPOINT::Ptr map_point )
 {
     PointCloud.push_back(map_point);

@@ -25,6 +25,11 @@ INCLUDE_DIRECTORIES( ${G2O_INCLUDE_DIR} )
 # Ceres
 FIND_PACKAGE(Ceres REQUIRED )
 INCLUDE_DIRECTORIES( ${CERES_INCLUDE_DIR} )
+# PCL
+#find_package(PCL 1.8 REQUIRED COMPONENTS common io)
+#INCLUDE_DIRECTORIES( ${PCL_INCLUDE_DIRS} )
+
+#FIND_PACKAGE(Threads REQUIRED)
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include)
 
@@ -34,10 +39,12 @@ SET( THIRD_PARTY_LIBS
     ${OpenCV_LIBRARIES}
     g2o_core g2o_stuff g2o_types_sba
     ${CERES_LIBRARIES}
+    #${PCL_LIBRARY_DIRS}
+
 )
-MESSAGE("******************************************")
-message(${Sophus_LIBRARIES})
-MESSAGE("******************************************")
+#MESSAGE("******************************************")
+#message(${PCL_INCLUDE_DIRS})
+#MESSAGE("******************************************")
 #message(${OpenCV_LIBRARIES})
 #MESSAGE("******************************************")
 

@@ -9,7 +9,7 @@ class VISUALODOMETRY
 public:
     typedef std::shared_ptr<VISUALODOMETRY> Ptr;
     VISUALODOMETRY(){};
-    VISUALODOMETRY(CAMERA::Ptr camera_, FEATUREOPERATER::Ptr FeatureOperater_temp);
+    VISUALODOMETRY(CAMERA::Ptr camera_, FEATUREOPERATER::Ptr FeatureOperater_temp, MAP::Ptr Local_Map_);
     ~VISUALODOMETRY(){};
     void addframe(FRAME::Ptr curr_temp);
     void predicmodel();
@@ -17,6 +17,8 @@ public:
     void poseEstimation();
     bool isKeyFrame(FRAME::Ptr fm);
     void run();
+
+    std::mutex mt;
     int state;
     FEATUREOPERATER::Ptr FeatureOperater_;
     CAMERA::Ptr camera_;

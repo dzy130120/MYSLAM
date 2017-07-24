@@ -19,7 +19,7 @@ public:
     SO3 K;
     double depthScale;
     vector<string> rgb_files, depth_files;
-    vector<double> rgb_times, depth_times;
+    vector<double> rgb_times, depth_times;//时间戳
 };
 
 

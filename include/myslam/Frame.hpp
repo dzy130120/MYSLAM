@@ -10,7 +10,8 @@ public:
     typedef std::shared_ptr<FRAME> Ptr;
     static unsigned long Frame_ID;
     unsigned long FrameID;
-    double TimeStamp;
+    double DepthTimeStamp;
+    double RGBTimeStamp;
     Mat ImgRgb;
     Mat ImgDepth;
     bool KeyFrame;
@@ -19,7 +20,7 @@ public:
     SE3 T_c_w;
     CAMERA::Ptr camera_;
     vector<MAPPOINT::Ptr> MapPoints;
-    FRAME(myslam::CAMERA::Ptr camera_temp, double Time_Stamp, Mat Img_Rgb, Mat Img_Depth);
+    FRAME(myslam::CAMERA::Ptr camera_temp, double RGBTimeStamp_,double DepthTimeStamp_, Mat Img_Rgb, Mat Img_Depth);
     FRAME(){};
     ~FRAME(){};
     // find the depth in depth map

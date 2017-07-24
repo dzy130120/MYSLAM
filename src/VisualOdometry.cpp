@@ -2,11 +2,9 @@
 
 namespace myslam
 {
-    VISUALODOMETRY::VISUALODOMETRY(CAMERA::Ptr camera_temp, FEATUREOPERATER::Ptr FeatureOperater_temp):camera_(camera_temp), FeatureOperater_(FeatureOperater_temp), ref_(nullptr), KeyFrame_(nullptr), curr_(nullptr)
+    VISUALODOMETRY::VISUALODOMETRY(CAMERA::Ptr camera_temp, FEATUREOPERATER::Ptr FeatureOperater_temp, MAP::Ptr Local_Map_):LocalMap_(Local_Map_), camera_(camera_temp), FeatureOperater_(FeatureOperater_temp), ref_(nullptr), KeyFrame_(nullptr), curr_(nullptr)
     {
         state = 0;
-        MAP::Ptr tmp(new MAP());
-        LocalMap_ = tmp;
     }
 
     void VISUALODOMETRY::addframe(FRAME::Ptr curr_temp)
@@ -20,7 +18,9 @@ namespace myslam
             state = 1;
             for(int i=0 ;i<KeyFrame_->MapPoints.size(); i++)
             {
+                mt.lock();
                 LocalMap_->insertMapPoint(KeyFrame_->MapPoints[i]);
+                mt.unlock();
             }
         }
         else if(1 == state)
@@ -29,13 +29,17 @@ namespace myslam
             predicmodel();
             Matcher();
             poseEstimation();
+//            cout<<"*************************"<<endl;
             if(isKeyFrame(curr_))
             {
                 OPTIMIZATION::Ptr Optimization(new OPTIMIZATION(curr_->T_c_w, curr_, curr_->camera_, inliers, MatchMapPoint, MatchKeyPoint));
                 curr_->T_c_w = Optimization->Optimization_run(10);
+                cout<<curr_->T_c_w.matrix()<<endl;
+                mt.lock();
                 for(int i=0; i<curr_->MapPoints.size();i++)
                 {
                     curr_->MapPoints[i]->Pos = curr_->T_c_w.inverse() * curr_->MapPoints[i]->Pos;
+
                     if(LocalMap_->isinMap(curr_->MapPoints[i]))
                     {
                         continue;
@@ -45,11 +49,14 @@ namespace myslam
                         LocalMap_->insertMapPoint(curr_->MapPoints[i]);
                     }
 
+
                 }
+                mt.unlock();
                 //cout<<LocalMap_->PointCloud.size()<<endl;
                 KeyFrame_ = curr_;
 
             }
+//            cout<<"*************************"<<endl;
 
         }
     }
@@ -59,13 +66,13 @@ namespace myslam
         Mat outimg1, outimg2;
         for(int i=0; i<camera_->rgb_files.size(); i++)
         {
-            FRAME::Ptr frame_(new myslam::FRAME(camera_, i, cv::imread(camera_->rgb_files[i],-1), cv::imread(camera_->depth_files[i])));
+            FRAME::Ptr frame_(new myslam::FRAME(camera_, camera_->rgb_times[i], camera_->depth_times[i], cv::imread(camera_->rgb_files[i],-1), cv::imread(camera_->depth_files[i])));
             FeatureOperater_->extractKeyPoints(frame_->ImgRgb, frame_->KeypointsCurr);
             frame_->keypointfilterwithdepth();
             FeatureOperater_->computeDescriptors(frame_->ImgRgb, frame_->KeypointsCurr, frame_->DescriptorsCurr);
             frame_->dispatch();
-            std::cout<<camera_->rgb_files[i]<<std::endl;
-            std::cout<<camera_->depth_files[i]<<std::endl;
+//            std::cout<<camera_->rgb_files[i]<<std::endl;
+//            std::cout<<camera_->depth_files[i]<<std::endl;
             addframe(frame_);
 
 //            drawKeypoints( curr_->ImgRgb, curr_->KeypointsCurr, outimg1, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
@@ -144,43 +151,13 @@ namespace myslam
                                    Vector3d ( tvec.at<double> ( 0,0 ), tvec.at<double> ( 1,0 ), tvec.at<double> ( 2,0 ) )
                                );
 
-//        typedef g2o::BlockSolver<g2o::BlockSolverTraits<-1,-1>> Block;
-//        Block::LinearSolverType* linearSolver = new g2o::LinearSolverDense<Block::PoseMatrixType>();
-//        Block* solver_ptr = new Block ( linearSolver );
-//        g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg ( solver_ptr );
-//        g2o::SparseOptimizer optimizer;
-//        optimizer.setAlgorithm ( solver );
 
-//        g2o::VertexSE3Expmap* pose = new g2o::VertexSE3Expmap();
-//        pose->setId ( 0 );
-//        pose->setEstimate ( g2o::SE3Quat (
-//                SO3 ( rvec.at<double> ( 0,0 ), rvec.at<double> ( 1,0 ), rvec.at<double> ( 2,0 ) ).matrix(), Vector3d ( tvec.at<double> ( 0,0 ), tvec.at<double> ( 1,0 ), tvec.at<double> ( 2,0 ) )
-//            ));
-//        optimizer.addVertex ( pose );
-
-//        for ( int i=0; i<inliers.rows; i++ )
-//        {
-//            int index = inliers.at<int> ( i,0 );
-//            // 3D -> 2D projection
-//            EdgeProjectXYZ2UVPoseOnly* edge = new EdgeProjectXYZ2UVPoseOnly();
-//            edge->setId ( i );
-//            edge->setVertex ( 0, pose );
-//            edge->frame_ = curr_;
-//            edge->camera_ = curr_->camera_;
-//            edge->point_ = Vector3d ( MatchMapPoint[index].x, MatchMapPoint[index].y, MatchMapPoint[index].z );
-//            edge->setMeasurement ( Vector2d ( MatchKeyPoint[index].x, MatchKeyPoint[index].y ) );
-//            edge->setInformation ( Eigen::Matrix2d::Identity() );
-//            optimizer.addEdge ( edge );
-
-//        }
-//        optimizer.initializeOptimization();
-//        optimizer.optimize ( 10 );
-//        curr_->T_c_w = SE3 ( pose->estimate().rotation(), pose->estimate().translation() );
     }
 
     bool VISUALODOMETRY::isKeyFrame(FRAME::Ptr fm)
     {
-        if(fm->T_c_w.matrix().norm()>2)
+        SE3 T = fm->T_c_w*KeyFrame_->T_c_w.inverse();
+        if(T.so3().log().norm() + T.translation().norm()>0.3)
         {
             fm->KeyFrame = true;
             return true;
@@ -190,4 +167,5 @@ namespace myslam
             return false;
         }
     }
+
 }
