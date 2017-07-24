@@ -10,6 +10,7 @@ public:
     typedef std::shared_ptr<MAP> Ptr;
     MAP(){};
     MAP(const Ptr C);
+    void Clone(const Ptr C);
 	~MAP(){};
     vector<MAPPOINT::Ptr >  PointCloud;
     void insertMapPoint ( MAPPOINT::Ptr map_point );

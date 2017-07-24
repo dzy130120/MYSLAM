@@ -12,9 +12,14 @@ void MAP::opD()
 {
     while(1)
     {
-        cout<<"str1111111111"<<endl;
+        cout<<PointCloud.size()<<endl;
         cvWaitKey(100);
     }
+}
+
+void MAP::Clone(const Ptr C)
+{
+    PointCloud.swap(C->PointCloud);
 }
 
 void MAP::insertMapPoint ( MAPPOINT::Ptr map_point )
