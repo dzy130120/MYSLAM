@@ -34,6 +34,8 @@ void EdgeProjectXYZ2UVPoseOnly::linearizeOplus()
     _jacobianOplusXi ( 1,5 ) = y/z_2 *camera_->fy;
 }
 
+
+
 OPTIMIZATION::OPTIMIZATION( SE3 init_Pose, FRAME::Ptr frame_, CAMERA::Ptr camera_, cv::Mat inliers_, vector<cv::Point3f> MatchMapPoint_, vector<cv::Point2f> MatchKeyPoint_)
 {
 
@@ -68,5 +70,23 @@ SE3 OPTIMIZATION::Optimization_run(int Iteration)
     optimizer.optimize ( Iteration );
     return SE3 ( pose->estimate().rotation(), pose->estimate().translation() );
 }
+/////////////////////////////////
+OPTIMIZATIONLP::OPTIMIZATIONLP( CAMERA::Ptr camera_, MAP::Ptr Mp_)
+{
+    linearSolver = new g2o::LinearSolverCholmod<BalBlockSolver::PoseMatrixType>();
+    dynamic_cast<g2o::LinearSolverCholmod<BalBlockSolver::PoseMatrixType>* >(linearSolver)->setBlockOrdering(true);  // AMD ordering , only needed for sparse cholesky solver
+    solver_ptr = new BalBlockSolver(linearSolver);
+    solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    optimizer.setAlgorithm(solver);
+    optimizer.setVerbose(false);
+    optimizer.initializeOptimization();
 
 }
+
+void OPTIMIZATIONLP::Optimization_run(int Iteration)
+{
+    optimizer.optimize ( Iteration );
+
+}
+}
+

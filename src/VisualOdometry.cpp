@@ -35,29 +35,14 @@ namespace myslam
                 OPTIMIZATION::Ptr Optimization(new OPTIMIZATION(curr_->T_c_w, curr_, curr_->camera_, inliers, MatchMapPoint, MatchKeyPoint));
                 curr_->T_c_w = Optimization->Optimization_run(10);
                 cout<<curr_->T_c_w.matrix()<<endl;
-                cout<<LocalMap_->PointCloud.size()<<endl;
                 mt.lock();
                 MAP::Ptr LMap_(LocalMap_);
                 mt.unlock();
-                for(int i=0; i<curr_->MapPoints.size();i++)
-                {
-                    curr_->MapPoints[i]->Pos = curr_->T_c_w.inverse() * curr_->MapPoints[i]->Pos;
-
-                    if(LMap_->isinMap(curr_->MapPoints[i]))
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        LMap_->insertMapPoint(curr_->MapPoints[i]);
-                    }
-
-
-                }
+                LMap_->isinMap(curr_);
+                LMap_->Keyframes.push_back(curr_);
                 mt.lock();
                 LocalMap_->Clone(LMap_);
                 mt.unlock();
-                cout<<LocalMap_->PointCloud.size()<<endl;
                 KeyFrame_ = curr_;
 
             }

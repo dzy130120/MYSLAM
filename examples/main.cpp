@@ -28,13 +28,19 @@ int main()
     myslam::CAMERA::Ptr camera_(new myslam::CAMERA(datedir,f_x, f_y, c_x, c_y, depth_scale));
     //定义局部地图
     myslam::MAP::Ptr LocalMap_(new myslam::MAP());
+    //myslam::MAP::Ptr LMap(new myslam::MAP(LocalMap_));
     //定义特征操作对象（提取特征点和描述子）
     myslam::FEATUREOPERATER::Ptr FeatureOperater(new myslam::FEATUREOPERATER(Num_Of_Features, Scale_Factor, Level_Pyramid));
     //定义里程计对象
     myslam::VISUALODOMETRY::Ptr vo(new myslam::VISUALODOMETRY(camera_, FeatureOperater, LocalMap_));
     //建立视觉里程计线程
     myslam::THREAD<myslam::VISUALODOMETRY::Ptr, myslam::VISUALODOMETRY>::Ptr FrontEnd(new myslam::THREAD<myslam::VISUALODOMETRY::Ptr, myslam::VISUALODOMETRY>(vo, &myslam::VISUALODOMETRY::run));
-    myslam::THREAD<myslam::MAP::Ptr, myslam::MAP>::Ptr mpop(new myslam::THREAD<myslam::MAP::Ptr, myslam::MAP>(LocalMap_, &myslam::MAP::opD));
+
+    std::mutex ml;
+    ml.lock();
+    myslam::MAP::Ptr LMap(new myslam::MAP(LocalMap_));
+    ml.unlock();
+    myslam::THREAD<myslam::MAP::Ptr, myslam::MAP>::Ptr mpop(new myslam::THREAD<myslam::MAP::Ptr, myslam::MAP>(LMap, &myslam::MAP::opD));
 //    vo->run();
 
     FrontEnd->t2->join();
